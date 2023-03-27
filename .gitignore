@@ -1,0 +1,7 @@
+.vscode
+.history
+node_modules/
+.idea
+
+yarn.lock
+.env
