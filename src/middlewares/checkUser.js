@@ -1,6 +1,6 @@
 import db from '../models';
 
-async function checkViewer(req, res, next) {
+async function checkBasicClient(req, res, next) {
   try {
     const userData = await db.User.findOne({
       where: { id: req.id },
@@ -20,7 +20,7 @@ async function checkViewer(req, res, next) {
   }
 }
 
-async function checkController(req, res, next) {
+async function checkEngineer(req, res, next) {
   try {
     const userData = await db.User.findOne({
       where: { id: req.id },
@@ -60,4 +60,4 @@ async function checkAdmin(req, res, next) {
   }
 }
 
-export { checkViewer, checkController, checkAdmin };
+export { checkBasicClient, checkEngineer, checkAdmin };
