@@ -3,5 +3,5 @@
 node_modules/
 .idea
 
-yarn.lock
+# yarn.lock
 .env
