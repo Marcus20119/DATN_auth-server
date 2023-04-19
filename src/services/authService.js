@@ -12,7 +12,7 @@ var salt = bcrypt.genSaltSync(10);
 async function handleRefreshToken(clientData) {
   return new Promise(async (resolve, reject) => {
     try {
-      // Kiểm tra xem trong request có chứa refreshToken không
+      // Kiểm tra xem trong request có chứa refresh_token không
       if (!clientData.refresh_token) {
         return resolve({
           status: 401,
@@ -26,14 +26,14 @@ async function handleRefreshToken(clientData) {
           process.env.REFRESH_TOKEN_SECRET,
           async (err, data) => {
             // Đoạn code này phải viết bên trong verify để lấy ra được id có trong accessKey
-            const { refreshToken: userRefreshToken } =
+            const { refresh_token: userRefreshToken } =
               await db.RefreshToken.findOne({
                 where: {
                   user_id: data.id,
                 },
                 raw: true,
               });
-            // Kiểm tra xem refreshToken có trong refreshToken table của user không
+            // Kiểm tra xem refresh_token có trong refresh_token table của user không
             if (clientData.refresh_token !== userRefreshToken) {
               return resolve({
                 status: 403,
@@ -43,20 +43,20 @@ async function handleRefreshToken(clientData) {
               });
             }
             /**
-             * Kiểm tra xem refreshToken này có chứa REFRESH_TOKEN_SECRET không
+             * Kiểm tra xem refresh_token này có chứa REFRESH_TOKEN_SECRET không
              * Nếu không thì trả lỗi
-             * Nếu có thì trả về new accessToken
+             * Nếu có thì trả về new access_token
              *  */
             if (err) {
               return resolve({
                 status: 403,
                 payload: {
-                  message: 'Invalid refreshToken',
+                  message: 'Invalid refresh_token',
                 },
               });
             }
             // trong data có iat và exp, 2 thông số này ta không cần thêm vào payload
-            const newAccessToken = jwt.sign(
+            const new_access_token = jwt.sign(
               { email: data.email, id: data.id },
               process.env.ACCESS_TOKEN_SECRET,
               {
@@ -66,8 +66,8 @@ async function handleRefreshToken(clientData) {
             return resolve({
               status: 200,
               payload: {
-                message: 'Create new accessToken successfully',
-                newAccessToken,
+                message: 'Create new access_token successfully',
+                new_access_token,
               },
             });
           }
@@ -83,7 +83,7 @@ async function createRefreshToken(user_id, payload) {
     try {
       const refresh_token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
       /**
-       * Kiểm tra xem đã có user trong table refreshTokens chưa
+       * Kiểm tra xem đã có user trong table refresh_tokens chưa
        * Nếu có thì cập nhật
        * Nếu không thì tạo mới
        *  */
@@ -155,10 +155,10 @@ async function handleSignIn(signInData) {
           },
         });
       }
-      // Khi mọi thứ ok thì tạo refreshToken và accessToken rồi trả dữ liệu về
+      // Khi mọi thứ ok thì tạo refresh_token và access_token rồi trả dữ liệu về
       const { email, id, password, ...rest } = userInfo;
-      const refreshToken = await createRefreshToken(id, { email, id });
-      const accessToken = jwt.sign(
+      const refresh_token = await createRefreshToken(id, { email, id });
+      const access_token = jwt.sign(
         { email, id },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -170,8 +170,8 @@ async function handleSignIn(signInData) {
         payload: {
           message: '',
           userData: { email, id, ...rest },
-          accessToken,
-          refreshToken,
+          access_token,
+          refresh_token,
         },
       });
     } catch (err) {
@@ -257,7 +257,7 @@ async function handleSignUp(signUpData) {
       });
       await newUser.save();
 
-      // Khi mọi thứ ok thì tạo refreshToken và accessToken rồi trả dữ liệu về
+      // Khi mọi thứ ok thì tạo refresh_token và access_token rồi trả dữ liệu về
       // const userInfo = await db.User.findOne({
       //   where: { email: signUpData.email },
       //   attributes: { exclude: ['password'] },

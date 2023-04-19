@@ -1,6 +1,6 @@
 import express from 'express';
-// import getController from '../controllers/getController';
-// import { checkAdmin, checkPlayer, checkToken } from '../middlewares';
+import getController from '../controllers/getController';
+import { checkToken, checkAdmin } from '../middlewares';
 
 const getRouter = express.Router();
 
@@ -22,12 +22,12 @@ const getRouter = express.Router();
 //   checkPlayer,
 //   getController.getTictactoeByUserId
 // );
-// getRouter.get(
-//   '/users/:type',
-//   checkToken,
-//   checkAdmin,
-//   getController.getAllDataFromUsers
-// );
+getRouter.get(
+  '/users/:type',
+  checkToken,
+  checkAdmin,
+  getController.getAllDataFromUsers
+);
 // getRouter.get(
 //   '/user/:userId',
 //   checkToken,

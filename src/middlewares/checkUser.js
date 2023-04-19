@@ -7,7 +7,7 @@ async function checkBasicClient(req, res, next) {
       raw: true,
     });
 
-    if (userData.roleId >= 0) {
+    if (userData.role_id >= 0) {
       next();
     } else {
       return res.status(401).json({
@@ -27,7 +27,7 @@ async function checkEngineer(req, res, next) {
       raw: true,
     });
 
-    if (userData.roleId >= 1) {
+    if (userData.role_id >= 1) {
       next();
     } else {
       return res.status(401).json({
@@ -47,7 +47,7 @@ async function checkAdmin(req, res, next) {
       raw: true,
     });
 
-    if (userData.roleId >= 2) {
+    if (userData.role_id >= 2) {
       next();
     } else {
       return res.status(401).json({
