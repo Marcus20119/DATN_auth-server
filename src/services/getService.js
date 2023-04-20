@@ -4,12 +4,11 @@ import db from '../models';
 
 /**
  *
- * @param {'User'} modelName
  * @param {{orderField: string; orderType: 'DESC' | 'ASC', page: number}} query
  * @param {'Activated User' | 'Deactivated User' | 'Deleted User'} type
  * @returns
  */
-async function getAllData(modelName, query, type) {
+async function getAllDataFromUser(query, type, project) {
   const offset = query?.page ? (query.page - 1) * 10 : 0;
   const limit = 10;
   let where = {};
@@ -37,12 +36,12 @@ async function getAllData(modelName, query, type) {
     default:
       break;
   }
+  if (project) {
+    where = { ...where, project_key: project };
+  }
   return new Promise(async (resolve, reject) => {
     try {
-      if (!modelName) {
-        reject('missing modelName');
-      }
-      const data = await db[modelName].findAll({
+      const data = await db.User.findAll({
         offset,
         limit,
         where,
@@ -54,7 +53,7 @@ async function getAllData(modelName, query, type) {
         ],
         raw: true,
       });
-      const { count: countRow } = await db[modelName].findAndCountAll({
+      const { count: countRow } = await db.User.findAndCountAll({
         where,
       });
       return resolve({
@@ -62,7 +61,7 @@ async function getAllData(modelName, query, type) {
         payload: {
           message: `Get page ${
             query?.page ? query.page : 1
-          } data from ${modelName} successfully`,
+          } data from User successfully`,
           totalPages:
             countRow % limit === 0
               ? Math.floor(countRow / limit)
@@ -327,4 +326,4 @@ async function getDataByUserId(modelName, userId) {
 //   });
 // }
 
-export { getAllData, getDataByUserId };
+export { getAllDataFromUser, getDataByUserId };
