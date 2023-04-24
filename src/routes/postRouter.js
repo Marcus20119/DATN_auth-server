@@ -1,8 +1,7 @@
 import express from 'express';
-import { checkPlayer, checkToken } from '../middlewares';
+import postController from '../controllers/postController';
+import { checkPlayer, checkRole, checkToken } from '../middlewares';
 
 const postRouter = express.Router();
-
-// postRouter.post('/test', postController.handleTest);
 
 export default postRouter;

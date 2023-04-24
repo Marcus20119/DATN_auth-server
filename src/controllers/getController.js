@@ -4,6 +4,7 @@ class GetController {
   async getAllDataFromUser(req, res) {
     try {
       const { status, payload } = await getService.getAllDataFromUser(
+        req.params.role,
         req.query,
         req.params.type,
         req.params.project

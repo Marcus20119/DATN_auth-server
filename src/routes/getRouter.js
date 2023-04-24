@@ -1,19 +1,19 @@
 import express from 'express';
 import getController from '../controllers/getController';
-import { checkToken, checkAdmin } from '../middlewares';
+import { checkToken, checkAdmin, checkRole } from '../middlewares';
 
 const getRouter = express.Router();
 
 getRouter.get(
-  '/:project/users/:type',
+  '/:role/users/:type/:project',
   checkToken,
-  checkAdmin,
+  checkRole,
   getController.getAllDataFromUser
 );
 getRouter.get(
-  '/users/:type',
+  '/:role/users/:type',
   checkToken,
-  checkAdmin,
+  checkRole,
   getController.getAllDataFromUser
 );
 

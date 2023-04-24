@@ -1,5 +1,25 @@
 import db from '../models';
 
+async function checkRole(req, res, next) {
+  try {
+    const userData = await db.User.findOne({
+      where: { id: req.id },
+      raw: true,
+    });
+
+    if (userData.role_id >= Number.parseInt(req.params.role)) {
+      next();
+    } else {
+      return res.status(401).json({
+        message: 'User does not have access to call this request',
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+}
+
 async function checkBasicClient(req, res, next) {
   try {
     const userData = await db.User.findOne({
@@ -80,4 +100,4 @@ async function checkAdmin(req, res, next) {
   }
 }
 
-export { checkBasicClient, checkEngineer, checkManager, checkAdmin };
+export { checkBasicClient, checkEngineer, checkManager, checkAdmin, checkRole };

@@ -1,20 +1,45 @@
 // import { Op } from 'sequelize';
 // import { getCurrentTime } from '../helpers';
+import { Op } from 'sequelize';
 import db from '../models';
 
 /**
- *
+ * @param {'0' | '1' | '2' | '3'} role
  * @param {{orderField: string; orderType: 'DESC' | 'ASC', page: number}} query
  * @param {'Activated User' | 'Deactivated User' | 'Deleted User'} type
+ * @param {string} project
  * @returns
  */
-async function getAllDataFromUser(query, type, project) {
+async function getAllDataFromUser(role, query, type, project) {
   const offset = query?.page ? (query.page - 1) * 10 : 0;
   const limit = 10;
   let where = {};
+  switch (role) {
+    case '2': {
+      where = {
+        ...where,
+        role_id: {
+          [Op.lt]: 2,
+        },
+      };
+      break;
+    }
+    case '3': {
+      where = {
+        ...where,
+        role_id: {
+          [Op.lt]: 3,
+        },
+      };
+      break;
+    }
+    default:
+      break;
+  }
   switch (type) {
     case 'Activated User': {
       where = {
+        ...where,
         is_activated: true,
         is_deleted: false,
       };
@@ -22,6 +47,7 @@ async function getAllDataFromUser(query, type, project) {
     }
     case 'Deactivated User': {
       where = {
+        ...where,
         is_activated: false,
         is_deleted: false,
       };
@@ -29,6 +55,7 @@ async function getAllDataFromUser(query, type, project) {
     }
     case 'Deleted User': {
       where = {
+        ...where,
         is_deleted: true,
       };
       break;
@@ -37,7 +64,10 @@ async function getAllDataFromUser(query, type, project) {
       break;
   }
   if (project) {
-    where = { ...where, project_key: project };
+    where = {
+      ...where,
+      project_key: project,
+    };
   }
   return new Promise(async (resolve, reject) => {
     try {

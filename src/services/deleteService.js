@@ -26,7 +26,7 @@ async function softDeleteUser(userId) {
         });
       } else {
         await db.User.update(
-          { isDeleted: true },
+          { is_deleted: true },
           {
             where: {
               id: userId,
@@ -113,7 +113,7 @@ async function restoreUser(userId) {
         });
       } else {
         await db.User.update(
-          { isDeleted: false },
+          { is_deleted: false },
           {
             where: {
               id: userId,
