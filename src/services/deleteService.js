@@ -1,6 +1,6 @@
 import db from '../models';
 
-async function softDeleteUser(userId) {
+async function hardDeleteUser(role, userId) {
   return new Promise(async (resolve, reject) => {
     try {
       // Kiểm tra xem có nhập email và password không
@@ -24,112 +24,29 @@ async function softDeleteUser(userId) {
             message: 'User is not exist',
           },
         });
-      } else {
-        await db.User.update(
-          { is_deleted: true },
-          {
-            where: {
-              id: userId,
-            },
-          }
-        );
+      }
+      if (userInfo.role_id >= role) {
         return resolve({
-          status: 200,
+          status: 401,
           payload: {
-            message: 'Delete User successfully',
+            message: "You can't access a user having this role",
           },
         });
       }
-    } catch (err) {
-      reject(err);
-    }
-  });
-}
-async function hardDeleteUser(userId) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // Kiểm tra xem có nhập email và password không
-      if (!userId) {
-        return resolve({
-          status: 422,
-          payload: {
-            message: 'Missing userId',
-          },
-        });
-      }
-      const userInfo = await db.User.findOne({
-        where: { id: userId },
-        raw: true,
+      await db.User.destroy({
+        where: {
+          id: userId,
+        },
       });
-      // Kiểm tra có user không (Có nhập đúng email không)
-      if (!userInfo) {
-        return resolve({
-          status: 404,
-          payload: {
-            message: 'User is not exist',
-          },
-        });
-      } else {
-        await db.User.destroy({
-          where: {
-            id: userId,
-          },
-        });
-        return resolve({
-          status: 200,
-          payload: {
-            message: 'Delete permanently User successfully',
-          },
-        });
-      }
-    } catch (err) {
-      reject(err);
-    }
-  });
-}
-async function restoreUser(userId) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      // Kiểm tra xem có nhập email và password không
-      if (!userId) {
-        return resolve({
-          status: 422,
-          payload: {
-            message: 'Missing userId',
-          },
-        });
-      }
-      const userInfo = await db.User.findOne({
-        where: { id: userId },
-        raw: true,
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Delete permanently User successfully',
+        },
       });
-      // Kiểm tra có user không (Có nhập đúng email không)
-      if (!userInfo) {
-        return resolve({
-          status: 404,
-          payload: {
-            message: 'User is not exist',
-          },
-        });
-      } else {
-        await db.User.update(
-          { is_deleted: false },
-          {
-            where: {
-              id: userId,
-            },
-          }
-        );
-        return resolve({
-          status: 200,
-          payload: {
-            message: 'Restore User successfully',
-          },
-        });
-      }
     } catch (err) {
       reject(err);
     }
   });
 }
-export { softDeleteUser, hardDeleteUser, restoreUser };
+export { hardDeleteUser };

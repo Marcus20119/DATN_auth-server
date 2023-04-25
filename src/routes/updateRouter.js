@@ -6,12 +6,6 @@ import { checkRole, checkToken } from '../middlewares';
 
 const updateRouter = express.Router();
 
-// updateRouter.put(
-//   '/user/:userId',
-//   checkToken,
-//   checkPlayer,
-//   updateController.handleUpdateUser
-// );
 updateRouter.patch(
   '/:role/user/soft-delete/:userId',
   checkToken,
@@ -23,6 +17,18 @@ updateRouter.patch(
   checkToken,
   checkRole,
   updateController.restoreUser
+);
+updateRouter.patch(
+  '/:role/user/activate/:userId',
+  checkToken,
+  checkRole,
+  updateController.activateUser
+);
+updateRouter.patch(
+  '/:role/user/deactivate/:userId',
+  checkToken,
+  checkRole,
+  updateController.deactivateUser
 );
 
 export default updateRouter;

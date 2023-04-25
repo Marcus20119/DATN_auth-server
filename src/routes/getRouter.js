@@ -16,5 +16,6 @@ getRouter.get(
   checkRole,
   getController.getAllDataFromUser
 );
+getRouter.get('/user/:userId', checkToken, getController.getUserByUserId);
 
 export default getRouter;

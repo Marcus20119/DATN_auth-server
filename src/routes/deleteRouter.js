@@ -1,26 +1,14 @@
 import express from 'express';
-// import deleteController from '../controllers/deleteController';
-// import { checkAdmin, checkToken } from '../middlewares';
+import deleteController from '../controllers/deleteController';
+import { checkRole, checkToken } from '../middlewares';
 
 const deleteRouter = express.Router();
 
-// deleteRouter.delete(
-//   '/user/soft-delete/:userId',
-//   checkToken,
-//   checkAdmin,
-//   deleteController.softDeleteUser
-// );
-// deleteRouter.delete(
-//   '/user/hard-delete/:userId',
-//   checkToken,
-//   checkAdmin,
-//   deleteController.hardDeleteUser
-// );
-// deleteRouter.delete(
-//   '/user/restore/:userId',
-//   checkToken,
-//   checkAdmin,
-//   deleteController.restoreUser
-// );
+deleteRouter.delete(
+  '/:role/user/hard-delete/:userId',
+  checkToken,
+  checkRole,
+  deleteController.hardDeleteUser
+);
 
 export default deleteRouter;

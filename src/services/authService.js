@@ -108,7 +108,6 @@ async function createRefreshToken(user_id, payload) {
     }
   });
 }
-
 async function handleSignIn(signInData) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -147,6 +146,14 @@ async function handleSignIn(signInData) {
           },
         });
       }
+      if (userInfo.is_deleted) {
+        return resolve({
+          status: 401,
+          payload: {
+            message: 'Tài khoản đã bị xóa',
+          },
+        });
+      }
       if (!userInfo.is_activated) {
         return resolve({
           status: 401,
@@ -179,7 +186,6 @@ async function handleSignIn(signInData) {
     }
   });
 }
-
 async function handleSignUp(signUpData) {
   return new Promise(async (resolve, reject) => {
     try {

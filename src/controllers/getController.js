@@ -16,18 +16,19 @@ class GetController {
     }
   }
 
-  // async getUserByUserId(req, res) {
-  //   try {
-  //     const { status, payload } = await getService.getDataByUserId(
-  //       'User',
-  //       req.params.userId
-  //     );
-  //     return res.status(status).json(payload);
-  //   } catch (err) {
-  //     console.log(err);
-  //     return res.status(500).json(err);
-  //   }
-  // }
+  async getUserByUserId(req, res) {
+    try {
+      const { status, payload } = await getService.getDataByUserId(
+        'User',
+        req.id,
+        req.params.userId
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
 }
 
 export default new GetController();
