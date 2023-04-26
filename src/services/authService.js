@@ -217,7 +217,7 @@ async function handleSignUp(signUpData) {
         return resolve({
           status: 422,
           payload: {
-            message: 'Mật khẩu phải đúng 8 ký tự',
+            message: 'mật khẩu phải có đúng 8 ký tự',
           },
         });
       }

@@ -1,6 +1,11 @@
 import express from 'express';
 import updateController from '../controllers/updateController';
-import { checkRole, checkToken } from '../middlewares';
+import {
+  checkAdmin,
+  checkManager,
+  checkRole,
+  checkToken,
+} from '../middlewares';
 // import updateController from '../controllers/updateController';
 // import { checkPlayer, checkToken } from '../middlewares';
 
@@ -29,6 +34,23 @@ updateRouter.patch(
   checkToken,
   checkRole,
   updateController.deactivateUser
+);
+updateRouter.patch(
+  '/:role/user/edit/:userId',
+  checkToken,
+  checkRole,
+  updateController.editUser
+);
+updateRouter.patch(
+  '/advanced/user/change-password/:userId',
+  checkToken,
+  checkManager,
+  updateController.advancedChangePassword
+);
+updateRouter.patch(
+  '/self/user/change-password/:userId',
+  checkToken,
+  updateController.selfChangePassword
 );
 
 export default updateRouter;

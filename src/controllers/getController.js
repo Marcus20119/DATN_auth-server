@@ -21,7 +21,7 @@ class GetController {
       const { status, payload } = await getService.getDataByUserId(
         'User',
         req.id,
-        req.params.userId
+        Number.parseInt(req.params.userId)
       );
       return res.status(status).json(payload);
     } catch (err) {

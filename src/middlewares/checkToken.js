@@ -20,7 +20,7 @@ function checkToken(req, res, next) {
         message: 'Forbidden or outdated token',
       });
     }
-    req.id = data.id;
+    req.id = Number.parseInt(data.id);
     next();
   });
 }

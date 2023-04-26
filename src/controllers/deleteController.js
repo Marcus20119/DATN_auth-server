@@ -5,7 +5,7 @@ class DeleteController {
     try {
       const { status, payload } = await deleteService.hardDeleteUser(
         req.params.role,
-        req.params.userId
+        Number.parseInt(req.params.userId)
       );
       return res.status(status).json(payload);
     } catch (err) {
