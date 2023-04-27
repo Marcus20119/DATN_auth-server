@@ -1,13 +1,6 @@
-import db from '../models';
-
 async function checkRole(req, res, next) {
   try {
-    const userData = await db.User.findOne({
-      where: { id: req.id },
-      raw: true,
-    });
-
-    if (userData.role_id >= Number.parseInt(req.params.role)) {
+    if (req.role_id >= Number.parseInt(req.params.role)) {
       next();
     } else {
       return res.status(401).json({
@@ -22,12 +15,7 @@ async function checkRole(req, res, next) {
 
 async function checkBasicClient(req, res, next) {
   try {
-    const userData = await db.User.findOne({
-      where: { id: req.id },
-      raw: true,
-    });
-
-    if (userData.role_id >= 0) {
+    if (req.role_id >= 0) {
       next();
     } else {
       return res.status(401).json({
@@ -42,12 +30,7 @@ async function checkBasicClient(req, res, next) {
 
 async function checkEngineer(req, res, next) {
   try {
-    const userData = await db.User.findOne({
-      where: { id: req.id },
-      raw: true,
-    });
-
-    if (userData.role_id >= 1) {
+    if (req.role_id >= 1) {
       next();
     } else {
       return res.status(401).json({
@@ -62,12 +45,7 @@ async function checkEngineer(req, res, next) {
 
 async function checkManager(req, res, next) {
   try {
-    const userData = await db.User.findOne({
-      where: { id: req.id },
-      raw: true,
-    });
-
-    if (userData.role_id >= 2) {
+    if (req.role_id >= 2) {
       next();
     } else {
       return res.status(401).json({
@@ -82,12 +60,7 @@ async function checkManager(req, res, next) {
 
 async function checkAdmin(req, res, next) {
   try {
-    const userData = await db.User.findOne({
-      where: { id: req.id },
-      raw: true,
-    });
-
-    if (userData.role_id >= 3) {
+    if (req.role_id >= 3) {
       next();
     } else {
       return res.status(401).json({

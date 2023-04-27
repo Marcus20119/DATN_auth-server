@@ -108,48 +108,121 @@ async function getAllDataFromUser(role, query, type, project) {
 
 /**
  *
- * @param {'User' | 'Wordle' | 'Tictactoe'} modelName
- * @param {number} id
+ * @param {string} modelName
+ * @param {{orderField: string; orderType: 'DESC' | 'ASC', page: number}} query
+ * @param {'Active Staff', 'Deleted Staff'} type
  * @returns
  */
-async function getDataByUserId(modelName, thisUserId, targetUserId) {
+async function getAllData(modelName, query, type) {
+  const offset = query?.page ? (query.page - 1) * 10 : 0;
+  const limit = 10;
+  let where = {};
+  switch (type) {
+    case 'Active Staff': {
+      where = {
+        ...where,
+        is_deleted: false,
+      };
+      break;
+    }
+    case 'Deleted Staff': {
+      where = {
+        ...where,
+        is_deleted: true,
+      };
+      break;
+    }
+    default:
+      break;
+  }
   return new Promise(async (resolve, reject) => {
     try {
       if (!modelName) {
-        reject('missing modelName');
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Missing modelName',
+          },
+        });
       }
+      const data = await db[modelName].findAll({
+        offset,
+        limit,
+        where,
+        order: [
+          [
+            query?.orderField ? query.orderField : 'id',
+            query?.orderType ? query.orderType : 'DESC',
+          ],
+        ],
+        raw: true,
+      });
+      const { count: countRow } = await db[modelName].findAndCountAll({
+        where,
+      });
+      return resolve({
+        status: 200,
+        payload: {
+          message: `Get page ${
+            query?.page ? query.page : 1
+          } data from ${modelName} successfully`,
+          totalPages:
+            countRow % limit === 0
+              ? Math.floor(countRow / limit)
+              : Math.floor(countRow / limit + 1),
+          data,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+/**
+ *
+ * @param {'User' | 'Staff'} modelName
+ * @param {number} id
+ * @returns
+ */
+async function getDataById(modelName, userId, targetId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!modelName) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Missing modelName',
+          },
+        });
+      }
+
       // User gửi request chỉ được quyền access data của user có quyền thấp hơn mình hoặc chính mình
-      if (Number.parseInt(thisUserId) !== Number.parseInt(targetUserId)) {
-        const thisUserInfo = await db.User.findOne({
-          where: { id: thisUserId },
-          raw: true,
-        });
-        const targetUserInfo = await db.User.findOne({
-          where: { id: targetUserId },
-          raw: true,
-        });
-        if (targetUserInfo.role_id >= thisUserInfo.role_id) {
-          return resolve({
-            status: 401,
-            payload: {
-              message: "You can't access a user having this role",
-            },
+      if (modelName === 'User') {
+        if (Number.parseInt(userId) !== Number.parseInt(targetId)) {
+          const thisUserInfo = await db.User.findOne({
+            where: { id: userId },
+            raw: true,
           });
+          const targetUserInfo = await db.User.findOne({
+            where: { id: targetId },
+            raw: true,
+          });
+          if (targetUserInfo.role_id >= thisUserInfo.role_id) {
+            return resolve({
+              status: 401,
+              payload: {
+                message: "You can't access a user having this role",
+              },
+            });
+          }
         }
       }
-      let data;
-      if (modelName === 'User') {
-        data = await db[modelName].findOne({
-          where: { id: targetUserId },
-          attributes: { exclude: ['password'] },
-          raw: true,
-        });
-      } else {
-        data = await db[modelName].findOne({
-          where: { user_id: targetUserId },
-          raw: true,
-        });
-      }
+      const data = await db[modelName].findOne({
+        where: { id: targetId },
+        attributes: { exclude: ['password'] },
+        raw: true,
+      });
 
       if (!data) {
         return resolve({
@@ -172,4 +245,4 @@ async function getDataByUserId(modelName, thisUserId, targetUserId) {
   });
 }
 
-export { getAllDataFromUser, getDataByUserId };
+export { getAllDataFromUser, getDataById, getAllData };

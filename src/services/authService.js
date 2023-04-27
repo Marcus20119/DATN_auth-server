@@ -263,29 +263,10 @@ async function handleSignUp(signUpData) {
       });
       await newUser.save();
 
-      // Khi mọi thứ ok thì tạo refresh_token và access_token rồi trả dữ liệu về
-      // const userInfo = await db.User.findOne({
-      //   where: { email: signUpData.email },
-      //   attributes: { exclude: ['password'] },
-      //   raw: true,
-      // });
-      // const { email, id, ...rest } = userInfo;
-      // const refresh_token = await createRefreshToken(id, { email, id });
-      // const access_token = jwt.sign(
-      //   { email, id },
-      //   process.env.ACCESS_TOKEN_SECRET,
-      //   {
-      //     expiresIn: '60s',
-      //   }
-      // );
-
       return resolve({
         status: 200,
         payload: {
           message: 'Đăng ký thành công',
-          // userData: { email, id, ...rest },
-          // refresh_token,
-          // access_token,
         },
       });
     } catch (err) {
