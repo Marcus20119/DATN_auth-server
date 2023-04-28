@@ -1,7 +1,14 @@
 import express from 'express';
 import postController from '../controllers/postController';
-import { checkPlayer, checkRole, checkToken } from '../middlewares';
+import { checkManager, checkToken } from '../middlewares';
 
 const postRouter = express.Router();
+
+postRouter.patch(
+  '/add-new-user',
+  checkToken,
+  checkManager,
+  postController.addNewUser
+);
 
 export default postRouter;

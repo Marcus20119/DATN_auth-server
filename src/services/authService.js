@@ -5,8 +5,6 @@ import { isEmailValid } from '../helpers';
 
 import db from '../models';
 dotenv.config();
-
-var bcrypt = require('bcryptjs');
 var salt = bcrypt.genSaltSync(10);
 
 async function handleRefreshToken(clientData) {

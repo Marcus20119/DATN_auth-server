@@ -11,7 +11,7 @@ import db from '../models';
  * @returns
  */
 async function getAllDataFromUser(role, query, type, project) {
-  const offset = query?.page ? (query.page - 1) * 10 : 0;
+  const offset = query?.page ? (Number.parseInt(query.page) - 1) * 10 : 0;
   const limit = 10;
   let where = {};
   switch (role) {
@@ -114,7 +114,7 @@ async function getAllDataFromUser(role, query, type, project) {
  * @returns
  */
 async function getAllData(modelName, query, type) {
-  const offset = query?.page ? (query.page - 1) * 10 : 0;
+  const offset = query?.page ? (Number.parseInt(query.page) - 1) * 10 : 0;
   const limit = 10;
   let where = {};
   switch (type) {

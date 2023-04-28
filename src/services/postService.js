@@ -1,186 +1,104 @@
-import { getCurrentTime } from '../helpers';
+var bcrypt = require('bcryptjs');
+import { getCurrentTime, isEmailValid } from '../helpers';
 import db from '../models';
 
-// async function handleSetGameHistoryData(game) {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const { day, month, year } = getCurrentTime();
-//       const currentDayData = await db.GameHistory.findOne({
-//         where: { year, month, day, game },
-//         raw: true,
-//       });
-//       if (currentDayData) {
-//         await db.GameHistory.update(
-//           { nPlay: currentDayData.nPlay + 1 },
-//           {
-//             where: {
-//               year,
-//               month,
-//               day,
-//               game,
-//             },
-//           }
-//         );
-//       } else {
-//         await db.GameHistory.create({ year, month, day, game, nPlay: 1 });
-//       }
-//       return resolve();
-//     } catch (err) {
-//       reject(err);
-//     }
-//   });
-// }
+var salt = bcrypt.genSaltSync(10);
 
-// async function handleSaveWordleResult(clientData) {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       // Kiểm tra xem data cos status và userId hay không
-//       if (!clientData.status || !clientData.userId) {
-//         return resolve({
-//           status: 422,
-//           payload: {
-//             message: 'Missing parameters',
-//           },
-//         });
-//       }
-//       // Kiểm tra xem data cos status và userId hay không
-//       if (clientData.status === 'win' || !clientData.currentRow) {
-//         return resolve({
-//           status: 422,
-//           payload: {
-//             message: 'Missing "currentRow" parameter',
-//           },
-//         });
-//       }
+async function handleAddNewUser(thisUserRoleId, newUserData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Kiểm tra xem có nhập email password, user_name và project_key không
+      if (
+        !newUserData.email ||
+        !newUserData.password ||
+        !newUserData.user_name ||
+        !newUserData.project_key ||
+        ![0, 1, 2, 3].includes(newUserData.role_id)
+      ) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Nhập thiếu dữ liệu',
+          },
+        });
+      }
+      if (thisUserRoleId === 2 && newUserData.role_id > 2) {
+        return resolve({
+          status: 401,
+          payload: {
+            message: 'Bạn không có quyền tạo người dùng có quyền này',
+          },
+        });
+      }
+      // Check validate Email
+      if (!isEmailValid(newUserData.email)) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Email không hợp lệ',
+          },
+        });
+      }
+      // Check validate password (Phải đúng 8 ký tự)
+      if (newUserData.password.length !== 8) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'mật khẩu phải có đúng 8 ký tự',
+          },
+        });
+      }
 
-//       const userWordleData = await db.Wordle.findOne({
-//         where: { userId: clientData.userId },
-//         raw: true,
-//       });
+      const isAlreadyExist = await db.User.findOne({
+        where: { email: newUserData.email },
+        attributes: { exclude: ['password'] },
+        raw: true,
+      });
+      // Kiểm tra xem đã tồn tại User này chưa
+      if (isAlreadyExist) {
+        return resolve({
+          status: 409,
+          payload: {
+            message: 'Tài khoản đã tồn tại',
+          },
+        });
+      }
 
-//       // Nếu đã có dữ liệu chơi trước đây thì cập nhật
-//       if (userWordleData) {
-//         let { id, ...newUserWordleData } = userWordleData;
-//         if (clientData.status === 'lose') {
-//           newUserWordleData.nLose = userWordleData.nLose + 1;
-//         } else if (clientData.status === 'win') {
-//           newUserWordleData[`nWinR${clientData.currentRow}`] =
-//             userWordleData[`nWinR${clientData.currentRow}`] + 1;
-//         }
-//         newUserWordleData.nPlay = userWordleData.nPlay + 1;
-//         await db.Wordle.update(newUserWordleData, {
-//           where: {
-//             userId: clientData.userId,
-//           },
-//         });
-//         // Nếu là lần đầu tiên chơi thì tạo dữ liệu mới
-//       } else {
-//         let newUserWordleData = {
-//           userId: clientData.userId,
-//           nWinR1: 0,
-//           nWinR2: 0,
-//           nWinR3: 0,
-//           nWinR4: 0,
-//           nWinR5: 0,
-//           nWinR6: 0,
-//           nLose: 0,
-//           nPlay: 1,
-//         };
-//         if (clientData.status === 'lose') {
-//           newUserWordleData.nLose = 1;
-//         } else if (clientData.status === 'win') {
-//           newUserWordleData[`nWinR${clientData.currentRow}`] = 1;
-//         }
-//         await db.Wordle.create(newUserWordleData);
-//       }
-//       await handleSetGameHistoryData('Wordle');
-//       return resolve({
-//         status: 200,
-//         payload: {
-//           message: "Update user's wordle data successfully",
-//         },
-//       });
-//     } catch (err) {
-//       reject(err);
-//     }
-//   });
-// }
-// async function handleSaveTictactoeResult(clientData) {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       // Kiểm tra xem data cos status và userId hay không
-//       if (!clientData.status || !clientData.userId) {
-//         return resolve({
-//           status: 422,
-//           payload: {
-//             message: 'Missing parameters',
-//           },
-//         });
-//       }
-//       // Kiểm tra xem data cos status và userId hay không
-//       if (clientData.status === 'win' || !clientData.playerMark) {
-//         return resolve({
-//           status: 422,
-//           payload: {
-//             message: 'Missing "playerMark" parameter',
-//           },
-//         });
-//       }
+      const projectData = await db.Project.findOne({
+        where: { project_key: newUserData.project_key },
+        raw: true,
+      });
 
-//       const userTictactoeData = await db.Tictactoe.findOne({
-//         where: { userId: clientData.userId },
-//         raw: true,
-//       });
+      if (!projectData) {
+        return resolve({
+          status: 404,
+          payload: {
+            message: 'Không tồn tại dự án',
+          },
+        });
+      }
 
-//       // Nếu đã có dữ liệu chơi trước đây thì cập nhật
-//       if (userTictactoeData) {
-//         let { id, ...newUserTictactoeData } = userTictactoeData;
-//         if (clientData.status === 'lose') {
-//           newUserTictactoeData.nLose = userTictactoeData.nLose + 1;
-//         } else if (clientData.status === 'win') {
-//           newUserTictactoeData[`nWin${clientData.playerMark}`] =
-//             userTictactoeData[`nWin${clientData.playerMark}`] + 1;
-//         } else if (clientData.status === 'draw') {
-//           newUserTictactoeData.nDraw = userTictactoeData.nDraw + 1;
-//         }
-//         newUserTictactoeData.nPlay = userTictactoeData.nPlay + 1;
-//         await db.Tictactoe.update(newUserTictactoeData, {
-//           where: {
-//             userId: clientData.userId,
-//           },
-//         });
-//         // Nếu là lần đầu tiên chơi thì tạo dữ liệu mới
-//       } else {
-//         let newUserTictactoeData = {
-//           userId: clientData.userId,
-//           nWinX: 0,
-//           nWinO: 0,
-//           nLose: 0,
-//           nDraw: 0,
-//           nPlay: 1,
-//         };
-//         if (clientData.status === 'lose') {
-//           newUserTictactoeData.nLose = 1;
-//         } else if (clientData.status === 'win') {
-//           newUserTictactoeData[`nWin${clientData.playerMark}`] = 1;
-//         } else if (clientData.status === 'draw') {
-//           newUserTictactoeData.nDraw = 1;
-//         }
-//         await db.Tictactoe.create(newUserTictactoeData);
-//       }
+      // Không có lỗi thì tạo user mới và lưu vào database
+      const newUser = await db.User.build({
+        ...newUserData,
+        password: bcrypt.hashSync(newUserData.password, salt),
+        is_deleted: false,
+        is_activated: false,
+        project_id: projectData.id,
+        project_key: projectData.project_key,
+      });
+      await newUser.save();
 
-//       await handleSetGameHistoryData('Tic Tac Toe');
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Đăng ký thành công',
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
 
-//       return resolve({
-//         status: 200,
-//         payload: {
-//           message: "Update user's Tictactoe data successfully",
-//         },
-//       });
-//     } catch (err) {
-//       reject(err);
-//     }
-//   });
-// }
-
-export {};
+export { handleAddNewUser };
