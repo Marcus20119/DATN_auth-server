@@ -101,4 +101,47 @@ async function handleAddNewUser(thisUserRoleId, newUserData) {
   });
 }
 
-export { handleAddNewUser };
+async function handleAddNewStaff(newStaffData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!newStaffData.full_name || !newStaffData.email) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Nhập thiếu dữ liệu',
+          },
+        });
+      }
+
+      const isAlreadyExist = await db.Staff.findOne({
+        where: { email: newStaffData.email },
+        raw: true,
+      });
+      // Kiểm tra xem đã tồn tại User này chưa
+      if (isAlreadyExist) {
+        return resolve({
+          status: 409,
+          payload: {
+            message: 'Nhân viên đã tồn tại',
+          },
+        });
+      }
+      const newStaff = await db.Staff.build({
+        ...newStaffData,
+        is_deleted: false,
+      });
+      await newStaff.save();
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Tạo nhân viên mới thành công',
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export { handleAddNewUser, handleAddNewStaff };

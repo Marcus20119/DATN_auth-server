@@ -14,7 +14,7 @@ var salt = bcrypt.genSaltSync(10);
  * @returns
  */
 
-async function handleUpdateUser(
+async function handleEditUser(
   thisUserId,
   targetUserId,
   modifiedData,
@@ -113,6 +113,44 @@ async function handleUpdateUser(
         status: 200,
         payload: {
           message: successfulMessage,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function handleEditStaff(staffId, newStaffData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!staffId) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Thiếu Id của nhân viên',
+          },
+        });
+      }
+      if (!newStaffData.full_name || !newStaffData.email) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Nhập thiếu dữ liệu',
+          },
+        });
+      }
+
+      await db.Staff.update(newStaffData, {
+        where: {
+          id: staffId,
+        },
+      });
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Chỉnh sửa nhân viên thành công',
         },
       });
     } catch (err) {
@@ -291,7 +329,8 @@ async function handleSelfChangePassword(userId, old_password, new_password) {
 }
 
 export {
-  handleUpdateUser,
+  handleEditUser,
+  handleEditStaff,
   handleAdvancedChangePassword,
   handleSelfChangePassword,
 };

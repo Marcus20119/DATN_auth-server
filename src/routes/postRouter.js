@@ -1,14 +1,20 @@
 import express from 'express';
 import postController from '../controllers/postController';
-import { checkManager, checkToken } from '../middlewares';
+import { checkAdmin, checkManager, checkToken } from '../middlewares';
 
 const postRouter = express.Router();
 
-postRouter.patch(
+postRouter.post(
   '/add-new-user',
   checkToken,
   checkManager,
   postController.addNewUser
+);
+postRouter.post(
+  '/add-new-staff',
+  checkToken,
+  checkAdmin,
+  postController.addNewStaff
 );
 
 export default postRouter;

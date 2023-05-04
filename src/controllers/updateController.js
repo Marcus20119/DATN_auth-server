@@ -59,11 +59,23 @@ class UpdateController {
   }
   async editUser(req, res) {
     try {
-      const { status, payload } = await updateService.handleUpdateUser(
+      const { status, payload } = await updateService.handleEditUser(
         req.id,
         Number.parseInt(req.params.userId),
         req.body,
         'Edit User successfully'
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+  async editStaff(req, res) {
+    try {
+      const { status, payload } = await updateService.handleEditStaff(
+        Number.parseInt(req.params.staffId),
+        req.body
       );
       return res.status(status).json(payload);
     } catch (err) {

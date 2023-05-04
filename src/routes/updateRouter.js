@@ -42,6 +42,12 @@ updateRouter.patch(
   updateController.editUser
 );
 updateRouter.patch(
+  '/staff/edit/:staffId',
+  checkToken,
+  checkAdmin,
+  updateController.editStaff
+);
+updateRouter.patch(
   '/advanced/user/change-password/:userId',
   checkToken,
   checkManager,
