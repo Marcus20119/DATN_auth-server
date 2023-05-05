@@ -17,6 +17,24 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: '',
       },
+      staff_count: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      user_count: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      staff_ids: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+      },
+      user_ids: {
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
+      },
+      status: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -110,7 +110,7 @@ async function getAllDataFromUser(role, query, type, project) {
  *
  * @param {string} modelName
  * @param {{orderField: string; orderType: 'DESC' | 'ASC', page: number}} query
- * @param {'Active Staff', 'Deleted Staff'} type
+ * @param {'Active Staff' | 'Deleted Staff' | 'Active Project' | 'Finished Project'} type
  * @returns
  */
 async function getAllData(modelName, query, type) {
@@ -132,8 +132,27 @@ async function getAllData(modelName, query, type) {
       };
       break;
     }
-    default:
+    case 'Active Project': {
+      where = {
+        ...where,
+        status: 0,
+      };
       break;
+    }
+    case 'Finished Project': {
+      where = {
+        ...where,
+        status: 1,
+      };
+      break;
+    }
+    default:
+      return resolve({
+        status: 422,
+        payload: {
+          message: 'Missing type',
+        },
+      });
   }
   return new Promise(async (resolve, reject) => {
     try {

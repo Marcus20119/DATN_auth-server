@@ -30,6 +30,20 @@ class GetController {
     }
   }
 
+  async getAllDataFromProject(req, res) {
+    try {
+      const { status, payload } = await getService.getAllData(
+        'Project',
+        req.query,
+        req.params.type
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+
   async getUserById(req, res) {
     try {
       const { status, payload } = await getService.getDataById(

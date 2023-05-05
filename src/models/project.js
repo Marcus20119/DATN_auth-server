@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       project_key: DataTypes.STRING,
+      staff_count: DataTypes.INTEGER,
+      user_count: DataTypes.INTEGER,
+      staff_ids: DataTypes.ARRAY(DataTypes.INTEGER),
+      user_ids: DataTypes.ARRAY(DataTypes.INTEGER),
+      status: DataTypes.INTEGER,
     },
     {
       sequelize,

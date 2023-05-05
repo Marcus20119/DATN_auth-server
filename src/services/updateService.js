@@ -121,7 +121,7 @@ async function handleEditUser(
   });
 }
 
-async function handleEditStaff(staffId, newStaffData) {
+async function handleEditStaff(staffId, newStaffData, successfulMessage) {
   return new Promise(async (resolve, reject) => {
     try {
       if (!staffId) {
@@ -132,7 +132,10 @@ async function handleEditStaff(staffId, newStaffData) {
           },
         });
       }
-      if (!newStaffData.full_name || !newStaffData.email) {
+      if (
+        ('full_name' in newStaffData && !newStaffData.full_name) ||
+        ('email' in newStaffData && !newStaffData.email)
+      ) {
         return resolve({
           status: 422,
           payload: {
@@ -150,7 +153,7 @@ async function handleEditStaff(staffId, newStaffData) {
       return resolve({
         status: 200,
         payload: {
-          message: 'Chỉnh sửa nhân viên thành công',
+          message: successfulMessage,
         },
       });
     } catch (err) {

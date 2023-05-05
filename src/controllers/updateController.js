@@ -3,7 +3,7 @@ import * as updateService from '../services/updateService';
 class UpdateController {
   async softDeleteUser(req, res) {
     try {
-      const { status, payload } = await updateService.handleUpdateUser(
+      const { status, payload } = await updateService.handleEditUser(
         req.id,
         Number.parseInt(req.params.userId),
         { is_deleted: true },
@@ -15,9 +15,22 @@ class UpdateController {
       return res.status(500).json(err);
     }
   }
+  async softDeleteStaff(req, res) {
+    try {
+      const { status, payload } = await updateService.handleEditStaff(
+        Number.parseInt(req.params.staffId),
+        { is_deleted: true },
+        'Delete User successfully'
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
   async restoreUser(req, res) {
     try {
-      const { status, payload } = await updateService.handleUpdateUser(
+      const { status, payload } = await updateService.handleEditUser(
         req.id,
         Number.parseInt(req.params.userId),
         { is_deleted: false },
@@ -29,9 +42,22 @@ class UpdateController {
       return res.status(500).json(err);
     }
   }
+  async restoreStaff(req, res) {
+    try {
+      const { status, payload } = await updateService.handleEditStaff(
+        Number.parseInt(req.params.staffId),
+        { is_deleted: false },
+        'Restore Staff successfully'
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
   async activateUser(req, res) {
     try {
-      const { status, payload } = await updateService.handleUpdateUser(
+      const { status, payload } = await updateService.handleEditUser(
         req.id,
         Number.parseInt(req.params.userId),
         { is_activated: true },
@@ -45,7 +71,7 @@ class UpdateController {
   }
   async deactivateUser(req, res) {
     try {
-      const { status, payload } = await updateService.handleUpdateUser(
+      const { status, payload } = await updateService.handleEditUser(
         req.id,
         Number.parseInt(req.params.userId),
         { is_activated: false },
@@ -75,7 +101,8 @@ class UpdateController {
     try {
       const { status, payload } = await updateService.handleEditStaff(
         Number.parseInt(req.params.staffId),
-        req.body
+        req.body,
+        'Edit Staff successfully'
       );
       return res.status(status).json(payload);
     } catch (err) {

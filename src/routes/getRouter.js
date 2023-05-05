@@ -24,6 +24,13 @@ getRouter.get(
   getController.getAllDataFromStaff
 );
 
+getRouter.get(
+  '/projects/:type',
+  checkToken,
+  checkAdmin,
+  getController.getAllDataFromProject
+);
+
 getRouter.get('/user/:userId', checkToken, getController.getUserById);
 getRouter.get('/staff/:staffId', checkToken, getController.getStaffById);
 

@@ -18,10 +18,22 @@ updateRouter.patch(
   updateController.softDeleteUser
 );
 updateRouter.patch(
+  '/staff/soft-delete/:staffId',
+  checkToken,
+  checkAdmin,
+  updateController.softDeleteStaff
+);
+updateRouter.patch(
   '/:role/user/restore/:userId',
   checkToken,
   checkRole,
   updateController.restoreUser
+);
+updateRouter.patch(
+  '/staff/restore/:staffId',
+  checkToken,
+  checkAdmin,
+  updateController.restoreStaff
 );
 updateRouter.patch(
   '/:role/user/activate/:userId',
