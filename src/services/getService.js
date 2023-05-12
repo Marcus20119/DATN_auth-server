@@ -264,4 +264,58 @@ async function getDataById(modelName, userId, targetId) {
   });
 }
 
-export { getAllDataFromUser, getDataById, getAllData };
+async function getProjectById(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!id) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Missing project id',
+          },
+        });
+      }
+      const data = await db.Project.findOne({
+        where: { id },
+        raw: true,
+      });
+
+      if (!data) {
+        return resolve({
+          status: 404,
+          payload: {
+            message: 'Data not found',
+          },
+        });
+      }
+      const staffs_data = await db.Staff.findAll({
+        where: {
+          id: {
+            [Op.in]: data.staff_ids,
+          },
+        },
+        attributes: ['full_name', 'id'],
+        raw: true,
+      });
+      const users_data = await db.User.findAll({
+        where: {
+          id: {
+            [Op.in]: data.user_ids,
+          },
+        },
+        attributes: ['user_name', 'id', 'role_id'],
+        raw: true,
+      });
+      return resolve({
+        status: 200,
+        payload: {
+          message: `Get data successfully`,
+          data: { ...data, staffs_data, users_data },
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+export { getAllDataFromUser, getDataById, getAllData, getProjectById };

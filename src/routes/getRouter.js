@@ -33,5 +33,11 @@ getRouter.get(
 
 getRouter.get('/user/:userId', checkToken, getController.getUserById);
 getRouter.get('/staff/:staffId', checkToken, getController.getStaffById);
+getRouter.get(
+  '/project/:projectId',
+  checkToken,
+  checkAdmin,
+  getController.getProjectById
+);
 
 export default getRouter;

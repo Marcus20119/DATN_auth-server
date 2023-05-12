@@ -71,6 +71,18 @@ class GetController {
       return res.status(500).json(err);
     }
   }
+
+  async getProjectById(req, res) {
+    try {
+      const { status, payload } = await getService.getProjectById(
+        req.params.projectId
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
 }
 
 export default new GetController();

@@ -156,7 +156,7 @@ async function handleSignIn(signInData) {
         return resolve({
           status: 401,
           payload: {
-            message: 'Chưa được Admin phê duyệt',
+            message: 'Tài khoản chưa được phê duyệt',
           },
         });
       }
