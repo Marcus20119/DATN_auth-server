@@ -31,6 +31,12 @@ getRouter.get(
   getController.getAllDataFromProject
 );
 
+getRouter.get(
+  '/errors/:project_id',
+  checkToken,
+  getController.getAllDataFromError
+);
+
 getRouter.get('/user/:userId', checkToken, getController.getUserById);
 getRouter.get('/staff/:staffId', checkToken, getController.getStaffById);
 getRouter.get(

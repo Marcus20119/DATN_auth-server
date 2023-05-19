@@ -264,6 +264,12 @@ async function getDataById(modelName, userId, targetId) {
   });
 }
 
+/**
+ *
+ * @param {number} id
+ * @returns
+ */
+
 async function getProjectById(id) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -318,4 +324,70 @@ async function getProjectById(id) {
     }
   });
 }
-export { getAllDataFromUser, getDataById, getAllData, getProjectById };
+
+/**
+ *
+ * @param {number} project_id
+ * @param {{orderField: string; orderType: 'DESC' | 'ASC', page: number}} query
+ * @returns
+ */
+
+async function getAllDataFromError(project_id, query) {
+  const limit = 20;
+  const offset = query?.page ? (Number.parseInt(query.page) - 1) * limit : 0;
+  const where = {
+    project_id,
+  };
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!project_id) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Missing project_id',
+          },
+        });
+      }
+
+      const data = await db.Error.findAll({
+        offset,
+        limit,
+        where,
+        order: [
+          [
+            query?.orderField ? query.orderField : 'id',
+            query?.orderType ? query.orderType : 'DESC',
+          ],
+        ],
+        raw: true,
+      });
+
+      const { count: countRow } = await db.Error.findAndCountAll({
+        where,
+      });
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: `Get page ${
+            query?.page ? query.page : 1
+          } data from Error successfully`,
+          totalPages:
+            countRow % limit === 0
+              ? Math.floor(countRow / limit)
+              : Math.floor(countRow / limit + 1),
+          data,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+export {
+  getAllDataFromUser,
+  getDataById,
+  getAllData,
+  getProjectById,
+  getAllDataFromError,
+};

@@ -43,6 +43,18 @@ class GetController {
       return res.status(500).json(err);
     }
   }
+  async getAllDataFromError(req, res) {
+    try {
+      const { status, payload } = await getService.getAllDataFromError(
+        req.params.project_id,
+        req.query
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
 
   async getUserById(req, res) {
     try {
