@@ -31,13 +31,13 @@ async function handleEditUser(
           },
         });
       }
-      const userInfo = await db.User.findOne({
+      const targetUserInfo = await db.User.findOne({
         where: { id: targetUserId },
         attributes: { exclude: ['password'] },
         raw: true,
       });
       // Kiểm tra có user không
-      if (!userInfo) {
+      if (!targetUserInfo) {
         return resolve({
           status: 404,
           payload: {
@@ -52,10 +52,7 @@ async function handleEditUser(
           where: { id: thisUserId },
           raw: true,
         });
-        const targetUserInfo = await db.User.findOne({
-          where: { id: targetUserId },
-          raw: true,
-        });
+
         if (targetUserInfo.role_id >= thisUserInfo.role_id) {
           return resolve({
             status: 401,
@@ -66,7 +63,7 @@ async function handleEditUser(
           });
         }
       }
-
+      // Kiểm tra email mới đã có ai sử dụng chưa
       if (modifiedData.email) {
         const { count } = await db.User.findAndCountAll({
           where: {
@@ -87,19 +84,60 @@ async function handleEditUser(
         }
       }
       if (modifiedData.project_key) {
-        const project = await db.User.findOne({
+        const projectData = await db.Project.findOne({
           where: {
             project_key: modifiedData.project_key,
           },
+          raw: true,
         });
 
-        if (!project) {
+        // Kiểm tra xem có tồn tại dự án không
+        if (!projectData) {
           return resolve({
             status: 401,
             payload: {
               message: `Không tồn tại dự án có mã ${modifiedData.project_key}`,
             },
           });
+        }
+
+        // Nếu đổi dự án
+        if (modifiedData.project_key !== targetUserInfo.project_key) {
+          // Cập nhật trường project_id của user vì dữ liệu nhập lên ko thay đổi nó
+          modifiedData.project_id = projectData.id;
+          // Update dữ liệu của Project mới
+          await db.Project.update(
+            {
+              user_count: projectData.user_count + 1,
+              user_ids: [...projectData.user_ids, targetUserInfo.id],
+            },
+            {
+              where: {
+                project_key: projectData.project_key,
+              },
+            }
+          );
+          // Update dữ liệu của Project cũ
+          const oldProjectData = await db.Project.findOne({
+            where: {
+              project_key: targetUserInfo.project_key,
+            },
+            raw: true,
+          });
+          const newUserIds = oldProjectData.user_ids.filter(
+            id => id !== targetUserInfo.id
+          );
+          await db.Project.update(
+            {
+              user_count: oldProjectData.user_count - 1,
+              user_ids: newUserIds,
+            },
+            {
+              where: {
+                project_key: targetUserInfo.project_key,
+              },
+            }
+          );
         }
       }
 

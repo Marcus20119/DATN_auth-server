@@ -250,16 +250,31 @@ async function handleSignUp(signUpData) {
       }
 
       // Không có lỗi thì tạo user mới và lưu vào database
-      const newUser = await db.User.build({
-        ...signUpData,
-        password: bcrypt.hashSync(signUpData.password, salt),
-        role_id: 0,
-        is_deleted: false,
-        is_activated: false,
-        project_id: projectData.id,
-        project_key: projectData.project_key,
-      });
+      const newUser = await db.User.build(
+        {
+          ...signUpData,
+          password: bcrypt.hashSync(signUpData.password, salt),
+          role_id: 0,
+          is_deleted: false,
+          is_activated: false,
+          project_id: projectData.id,
+          project_key: projectData.project_key,
+        },
+        { raw: true }
+      );
       await newUser.save();
+      // Đồng thời cập nhật thêm vào dữ liệu của Project
+      await db.Project.update(
+        {
+          user_count: projectData.user_count + 1,
+          user_ids: [...projectData.user_ids, newUser.id],
+        },
+        {
+          where: {
+            project_key: signUpData.project_key,
+          },
+        }
+      );
 
       return resolve({
         status: 200,
