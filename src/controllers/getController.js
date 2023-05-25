@@ -95,6 +95,18 @@ class GetController {
       return res.status(500).json(err);
     }
   }
+
+  async getExportErrorData(req, res) {
+    try {
+      const { status, payload } = await getService.getExportErrorData(
+        req.params.projectId
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
 }
 
 export default new GetController();

@@ -46,4 +46,10 @@ getRouter.get(
   getController.getProjectById
 );
 
+getRouter.get(
+  '/export-error/:projectId',
+  checkToken,
+  getController.getExportErrorData
+);
+
 export default getRouter;

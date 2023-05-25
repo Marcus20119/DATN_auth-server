@@ -384,10 +384,46 @@ async function getAllDataFromError(project_id, query) {
     }
   });
 }
+
+/**
+ *
+ * @param {number} projectId
+ * @returns
+ */
+
+async function getExportErrorData(project_id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!project_id) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Missing project_id',
+          },
+        });
+      }
+      const errorData = await db.Error.findAll({
+        where: { project_id },
+        order: [['created_at', 'DESC']],
+        raw: true,
+      });
+      return resolve({
+        status: 200,
+        payload: {
+          message: `Get export data successfully`,
+          data: errorData,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
 export {
   getAllDataFromUser,
   getDataById,
   getAllData,
   getProjectById,
   getAllDataFromError,
+  getExportErrorData,
 };
