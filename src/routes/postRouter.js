@@ -16,5 +16,6 @@ postRouter.post(
   checkAdmin,
   postController.addNewStaff
 );
+postRouter.post('/add-new-error', postController.addNewError);
 
 export default postRouter;

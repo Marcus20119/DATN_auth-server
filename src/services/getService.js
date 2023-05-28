@@ -405,6 +405,7 @@ async function getExportErrorData(project_id) {
       const errorData = await db.Error.findAll({
         where: { project_id },
         order: [['created_at', 'DESC']],
+        attributes: ['id', 'error_message', 'created_at'],
         raw: true,
       });
       return resolve({

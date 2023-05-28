@@ -144,4 +144,31 @@ async function handleAddNewStaff(newStaffData) {
   });
 }
 
-export { handleAddNewUser, handleAddNewStaff };
+async function handleAddNewError(newErrorData) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!newErrorData.project_id || !newErrorData.error_message) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Nhập thiếu dữ liệu',
+          },
+        });
+      }
+
+      const newError = await db.Error.build(newErrorData);
+      await newError.save();
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Thêm lỗi mới thành công',
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export { handleAddNewUser, handleAddNewStaff, handleAddNewError };

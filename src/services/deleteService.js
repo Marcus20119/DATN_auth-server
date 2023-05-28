@@ -33,6 +33,24 @@ async function hardDeleteUser(role, userId) {
           },
         });
       }
+      const projectData = await db.Project.findOne({
+        where: {
+          project_key: userInfo.project_key,
+        },
+        raw: true,
+      });
+      const newUserIds = projectData.user_ids.filter(id => id !== userInfo.id);
+      await db.Project.update(
+        {
+          user_count: projectData.user_count - 1,
+          user_ids: newUserIds,
+        },
+        {
+          where: {
+            project_key: userInfo.project_key,
+          },
+        }
+      );
       await db.User.destroy({
         where: {
           id: userId,
