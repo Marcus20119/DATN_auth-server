@@ -60,6 +60,12 @@ updateRouter.patch(
   updateController.editStaff
 );
 updateRouter.patch(
+  '/project/edit/:projectId',
+  checkToken,
+  checkAdmin,
+  updateController.editProject
+);
+updateRouter.patch(
   '/advanced/user/change-password/:userId',
   checkToken,
   checkManager,

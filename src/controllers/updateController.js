@@ -110,6 +110,19 @@ class UpdateController {
       return res.status(500).json(err);
     }
   }
+  async editProject(req, res) {
+    try {
+      const { status, payload } = await updateService.handleEditProject(
+        Number.parseInt(req.params.projectId),
+        req.body,
+        'Edit Project successfully'
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
   async advancedChangePassword(req, res) {
     try {
       const { status, payload } =

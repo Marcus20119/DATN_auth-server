@@ -159,6 +159,13 @@ async function handleEditUser(
   });
 }
 
+/**
+ *
+ * @param {number} staffId
+ * @param {object} newStaffData
+ * @param {string} successfulMessage
+ * @returns
+ */
 async function handleEditStaff(staffId, newStaffData, successfulMessage) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -187,6 +194,56 @@ async function handleEditStaff(staffId, newStaffData, successfulMessage) {
           id: staffId,
         },
       });
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: successfulMessage,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function handleEditProject(projectId, newProjectData, successfulMessage) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!projectId) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Thiếu Id của dự án',
+          },
+        });
+      }
+      // if (
+      //   ('name' in newStaffData && !newStaffData.name) ||
+      //   ('project_key' in newStaffData && !newStaffData.project_key)
+      // ) {
+      //   return resolve({
+      //     status: 422,
+      //     payload: {
+      //       message: 'Nhập thiếu dữ liệu',
+      //     },
+      //   });
+      // }
+      if (newProjectData.project_key) {
+        const currentProjectData = await db.Project.findOne({
+          where: {
+            project_key: newProjectData.project_key,
+          },
+          raw: true,
+        });
+        console.log('currentProjectData:', currentProjectData);
+      }
+
+      // await db.Staff.update(newStaffData, {
+      //   where: {
+      //     id: staffId,
+      //   },
+      // });
 
       return resolve({
         status: 200,
@@ -372,6 +429,7 @@ async function handleSelfChangePassword(userId, old_password, new_password) {
 export {
   handleEditUser,
   handleEditStaff,
+  handleEditProject,
   handleAdvancedChangePassword,
   handleSelfChangePassword,
 };
