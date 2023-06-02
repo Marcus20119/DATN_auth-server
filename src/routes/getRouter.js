@@ -36,6 +36,12 @@ getRouter.get(
   checkToken,
   getController.getAllDataFromError
 );
+getRouter.get(
+  '/staffs',
+  checkToken,
+  checkAdmin,
+  getController.getAllDataFromStaff
+);
 
 getRouter.get('/user/:userId', checkToken, getController.getUserById);
 getRouter.get('/staff/:staffId', checkToken, getController.getStaffById);

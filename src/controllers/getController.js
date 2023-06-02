@@ -55,6 +55,15 @@ class GetController {
       return res.status(500).json(err);
     }
   }
+  async getAllDataFromStaff(req, res) {
+    try {
+      const { status, payload } = await getService.getAllDataFromStaff();
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
 
   async getUserById(req, res) {
     try {

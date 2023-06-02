@@ -385,6 +385,27 @@ async function getAllDataFromError(project_id, query) {
   });
 }
 
+async function getAllDataFromStaff() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await db.Staff.findAll({
+        order: [['id', 'ASC']],
+        raw: true,
+      });
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: `Get data from Staff successfully`,
+          data,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 /**
  *
  * @param {number} projectId
@@ -426,5 +447,6 @@ export {
   getAllData,
   getProjectById,
   getAllDataFromError,
+  getAllDataFromStaff,
   getExportErrorData,
 };

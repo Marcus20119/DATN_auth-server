@@ -207,6 +207,14 @@ async function handleEditStaff(staffId, newStaffData, successfulMessage) {
   });
 }
 
+/**
+ *
+ * @param {number} projectId
+ * @param {object} newProjectData
+ * @param {string} successfulMessage
+ * @returns
+ */
+
 async function handleEditProject(projectId, newProjectData, successfulMessage) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -232,18 +240,25 @@ async function handleEditProject(projectId, newProjectData, successfulMessage) {
       if (newProjectData.project_key) {
         const currentProjectData = await db.Project.findOne({
           where: {
-            project_key: newProjectData.project_key,
+            id: projectId,
           },
           raw: true,
         });
-        console.log('currentProjectData:', currentProjectData);
+        if (currentProjectData.project_key !== newProjectData.project_key) {
+          await db.User.update(
+            { project_key: newProjectData.project_key },
+            { where: { id: { [Op.in]: currentProjectData.user_ids } } }
+          );
+          await db.Project.update(
+            { project_key: newProjectData.project_key },
+            {
+              where: {
+                id: currentProjectData.id,
+              },
+            }
+          );
+        }
       }
-
-      // await db.Staff.update(newStaffData, {
-      //   where: {
-      //     id: staffId,
-      //   },
-      // });
 
       return resolve({
         status: 200,
