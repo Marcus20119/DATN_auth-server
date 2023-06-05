@@ -226,17 +226,6 @@ async function handleEditProject(projectId, newProjectData, successfulMessage) {
           },
         });
       }
-      // if (
-      //   ('name' in newStaffData && !newStaffData.name) ||
-      //   ('project_key' in newStaffData && !newStaffData.project_key)
-      // ) {
-      //   return resolve({
-      //     status: 422,
-      //     payload: {
-      //       message: 'Nhập thiếu dữ liệu',
-      //     },
-      //   });
-      // }
       if (newProjectData.project_key) {
         const currentProjectData = await db.Project.findOne({
           where: {
@@ -249,16 +238,28 @@ async function handleEditProject(projectId, newProjectData, successfulMessage) {
             { project_key: newProjectData.project_key },
             { where: { id: { [Op.in]: currentProjectData.user_ids } } }
           );
-          await db.Project.update(
-            { project_key: newProjectData.project_key },
-            {
-              where: {
-                id: currentProjectData.id,
-              },
-            }
-          );
         }
       }
+
+      if (newProjectData.staff_ids) {
+        await db.Project.update(
+          { staff_count: newProjectData.staff_ids.length },
+          {
+            where: {
+              id: projectId,
+            },
+          }
+        );
+      }
+      console.log('newProjectData: ', newProjectData);
+      await db.Project.update(
+        { ...newProjectData },
+        {
+          where: {
+            id: projectId,
+          },
+        }
+      );
 
       return resolve({
         status: 200,

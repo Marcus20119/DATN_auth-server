@@ -17,5 +17,11 @@ postRouter.post(
   postController.addNewStaff
 );
 postRouter.post('/add-new-error', postController.addNewError);
+postRouter.post(
+  '/add-new-project',
+  checkToken,
+  checkAdmin,
+  postController.addNewProject
+);
 
 export default postRouter;
