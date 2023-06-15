@@ -198,9 +198,61 @@ async function handleAddNewProject(newProjectData) {
   });
 }
 
+async function handleAddAccessHistory(projectId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!projectId) {
+        return resolve({
+          status: 422,
+          payload: {
+            message: 'Thiếu projectId',
+          },
+        });
+      }
+
+      const { day, month, year } = getCurrentTime();
+      const currentDayData = await db.AccessHistory.findOne({
+        where: { year, month, day, project_id: projectId },
+        raw: true,
+      });
+      if (currentDayData) {
+        await db.AccessHistory.update(
+          { n: currentDayData.n + 1 },
+          {
+            where: {
+              year,
+              month,
+              day,
+              project_id: projectId,
+            },
+          }
+        );
+      } else {
+        await db.AccessHistory.create({
+          year,
+          month,
+          day,
+          project_id: projectId,
+          n: 1,
+        });
+      }
+
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Thêm lịch sử truy cập thành công',
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 export {
   handleAddNewUser,
   handleAddNewStaff,
   handleAddNewError,
   handleAddNewProject,
+  handleAddAccessHistory,
 };

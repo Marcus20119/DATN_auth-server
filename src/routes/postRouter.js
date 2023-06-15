@@ -5,7 +5,7 @@ import { checkAdmin, checkManager, checkToken } from '../middlewares';
 const postRouter = express.Router();
 
 postRouter.post(
-  '/add-new-user',
+  '/user/add-new',
   checkToken,
   checkManager,
   postController.addNewUser
@@ -18,10 +18,15 @@ postRouter.post(
 );
 postRouter.post('/add-new-error', postController.addNewError);
 postRouter.post(
-  '/add-new-project',
+  '/project/add-new',
   checkToken,
   checkAdmin,
   postController.addNewProject
+);
+postRouter.post(
+  '/access-history/:projectId',
+  checkToken,
+  postController.addAccessHistory
 );
 
 export default postRouter;

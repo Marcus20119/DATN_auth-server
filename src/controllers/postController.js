@@ -42,6 +42,17 @@ class PostController {
       return res.status(500).json(err);
     }
   }
+  async addAccessHistory(req, res) {
+    try {
+      const { status, payload } = await postService.handleAddAccessHistory(
+        req.params.projectId
+      );
+      return res.status(status).json(payload);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
 }
 
 export default new PostController();

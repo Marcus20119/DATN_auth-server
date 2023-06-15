@@ -1,6 +1,7 @@
 // import { Op } from 'sequelize';
 // import { getCurrentTime } from '../helpers';
 import { Op } from 'sequelize';
+import { getCurrentTime } from '../helpers/getCurrentTime';
 import db from '../models';
 
 /**
@@ -441,6 +442,191 @@ async function getExportErrorData(project_id) {
     }
   });
 }
+
+async function getLineChart() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let { day, month, year } = getCurrentTime();
+      day = Number(day);
+      month = Number(month);
+      year = Number(year);
+
+      const projectData = await db.Project.findAll({
+        raw: true,
+        order: [['user_count', 'DESC']],
+        limit: 5,
+        attributes: ['id', 'project_key'],
+      });
+
+      const projectIds = projectData.map(item => item.id);
+      let resData = projectIds.map(projectId => ({
+        id: projectId,
+        data: [],
+      }));
+
+      let whereDays = [];
+      for (let i = 0; i < 7; i++) {
+        if (day > 1) {
+          whereDays.push({
+            day: String(day).padStart(2, '0'),
+            month: String(month).padStart(2, '0'),
+            year: String(year).padStart(2, '0'),
+          });
+          day--;
+          // Điều kiện năm nhuận, đầu tháng 3
+        } else if (month === 3 && year % 4 === 0 && year % 100 !== 0) {
+          whereDays.push({
+            day: String(day).padStart(2, '0'),
+            month: String(month).padStart(2, '0'),
+            year: String(year).padStart(2, '0'),
+          });
+          day = 29;
+          month = 2;
+          // Điều kiện năm không nhuận, đầu tháng 3
+        } else if (month === 3) {
+          whereDays.push({
+            day: String(day).padStart(2, '0'),
+            month: String(month).padStart(2, '0'),
+            year: String(year).padStart(2, '0'),
+          });
+          day = 28;
+          month = 2;
+          // Điều kiện đầu các tháng có 30 ngày
+        } else if ([2, 4, 6, 9, 11].includes(month)) {
+          whereDays.push({
+            day: String(day).padStart(2, '0'),
+            month: String(month).padStart(2, '0'),
+            year: String(year).padStart(2, '0'),
+          });
+          day = 31;
+          month--;
+          // Điều kiện đầu các tháng có 31 ngày
+        } else if ([5, 7, 8, 10, 12].includes(month)) {
+          whereDays.push({
+            day: String(day).padStart(2, '0'),
+            month: String(month).padStart(2, '0'),
+            year: String(year).padStart(2, '0'),
+          });
+          day = 30;
+          month--;
+          // Điều kiện đầu tháng 1
+        } else {
+          whereDays.push({
+            day: String(day).padStart(2, '0'),
+            month: String(month).padStart(2, '0'),
+            year: String(year).padStart(2, '0'),
+          });
+          day = 31;
+          month = 12;
+          year--;
+        }
+      }
+
+      for await (const [index, projectId] of projectIds.entries()) {
+        for await (const whereDay of whereDays) {
+          const dayData = await db.AccessHistory.findOne({
+            where: { ...whereDay, project_id: projectId },
+            order: [['day', 'DESC']],
+            attributes: ['n'],
+            raw: true,
+          });
+          if (dayData) {
+            resData[index].data.push({
+              x: `${whereDay.day}/${whereDay.month}`,
+              y: dayData.n,
+            });
+          } else {
+            resData[index].data.push({
+              x: `${whereDay.day}/${whereDay.month}`,
+              y: 0,
+            });
+          }
+        }
+        resData[index].data.reverse();
+      }
+
+      resData = await resData.map(item => ({
+        ...item,
+        id: projectData.find(project => project.id === item.id).project_key,
+      }));
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Get user line chart data successfully',
+          data: resData,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function getPipeChart() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const projectData = await db.Project.findAll({
+        raw: true,
+        order: [['user_count', 'DESC']],
+        limit: 5,
+        attributes: ['project_key', 'user_count'],
+      });
+      const resData = projectData.map(item => ({
+        label: item.project_key,
+        value: item.user_count,
+      }));
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Get user pipe chart data successfully',
+          data: resData,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function getBarChart() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const staffs = await db.Staff.findAll({
+        order: [['id', 'ASC']],
+        raw: true,
+        attributes: ['id', 'full_name'],
+      });
+      let resData = [];
+
+      // await staffs.map(async item => {
+      //
+      // });
+      for await (const [, item] of staffs.entries()) {
+        const { count } = await db.Project.findAndCountAll({
+          where: {
+            staff_ids: {
+              [Op.contains]: [item.id],
+            },
+          },
+        });
+        resData.push({
+          'Nhân viên': item.full_name,
+          'Số dự án': count,
+        });
+      }
+      return resolve({
+        status: 200,
+        payload: {
+          message: 'Get user bar chart data successfully',
+          data: resData,
+        },
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 export {
   getAllDataFromUser,
   getDataById,
@@ -449,4 +635,7 @@ export {
   getAllDataFromError,
   getAllDataFromStaff,
   getExportErrorData,
+  getLineChart,
+  getPipeChart,
+  getBarChart,
 };

@@ -45,17 +45,16 @@ getRouter.get(
 
 getRouter.get('/user/:userId', checkToken, getController.getUserById);
 getRouter.get('/staff/:staffId', checkToken, getController.getStaffById);
-getRouter.get(
-  '/project/:projectId',
-  checkToken,
-  checkAdmin,
-  getController.getProjectById
-);
+getRouter.get('/project/:projectId', checkToken, getController.getProjectById);
 
 getRouter.get(
   '/export-error/:projectId',
   checkToken,
   getController.getExportErrorData
 );
+
+getRouter.get('/chart/user/line', getController.getLineChart);
+getRouter.get('/chart/user/pipe', getController.getPipeChart);
+getRouter.get('/chart/user/bar', getController.getBarChart);
 
 export default getRouter;
