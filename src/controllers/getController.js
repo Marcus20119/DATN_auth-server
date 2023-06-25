@@ -16,7 +16,7 @@ class GetController {
     }
   }
 
-  async getAllDataFromStaff(req, res) {
+  async getAllDataFromStaffTable(req, res) {
     try {
       const { status, payload } = await getService.getAllData(
         'Staff',

@@ -21,7 +21,7 @@ getRouter.get(
   '/staffs/:type',
   checkToken,
   checkAdmin,
-  getController.getAllDataFromStaff
+  getController.getAllDataFromStaffTable
 );
 
 getRouter.get(
